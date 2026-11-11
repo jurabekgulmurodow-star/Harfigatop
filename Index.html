@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Harfigatop</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f4ff;--ink:#15173d;--card:#fff;--mute:#6b6f9c;--a:#2b4bff;--b:#d62a76;--hit:#ffd23f;--line:#d9dcf5;--bad:#d62a2a;--ok:#1d9a5a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1226;--ink:#eceeff;--card:#1a1e3d;--mute:#9a9fd0;--a:#7b92ff;--b:#ff6aa5;--line:#2c3160;--bad:#ff6b6b;--ok:#4cd68c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1226;--ink:#eceeff;--card:#1a1e3d;--mute:#9a9fd0;--a:#7b92ff;--b:#ff6aa5;--line:#2c3160;--bad:#ff6b6b;--ok:#4cd68c;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+#app{max-width:520px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:34px;font-weight:800;margin:6px 0 4px;letter-spacing:-.02em}
+p.sub{color:var(--mute);margin:0 0 16px;line-height:1.45}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+label{display:block;font-size:14px;color:var(--mute);margin-bottom:6px}
+input,textarea{width:100%;font:inherit;font-size:18px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+textarea{font-size:16px;resize:vertical}
+input:focus,textarea:focus,button:focus-visible{outline:3px solid var(--hit);outline-offset:1px}
+.row{display:flex;gap:10px}.row>*{flex:1}
+button{font:inherit;font-weight:600;font-size:17px;padding:13px 16px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+button.alt{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+button.go{background:var(--a);color:#fff;font-size:19px;padding:15px}
+button.sm{font-size:14px;padding:8px 12px}
+button.red{background:var(--bad);color:#fff}
+button{touch-action:manipulation}
+#in{text-align:center;font-size:26px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;caret-color:transparent}
+#in::placeholder{font-size:17px;font-weight:400;letter-spacing:0;text-transform:none}
+.kb{display:flex;flex-direction:column;gap:6px;margin:0 0 12px}
+.kr{display:flex;gap:4px;justify-content:center}
+.k{flex:1;max-width:44px;min-width:0;padding:0;height:48px;font-size:19px;font-weight:700;text-transform:uppercase;background:var(--bg);color:var(--ink);border:1.5px solid var(--line);border-radius:9px}
+.k:active{background:var(--hit);color:#15173d}
+.k.w{max-width:68px;flex:1.6;font-size:20px}
+.tiles{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.t{width:42px;height:48px;display:grid;place-items:center;font-weight:800;font-size:24px;border-radius:10px;background:var(--bg);border:1.5px solid var(--line);text-transform:uppercase}
+.t.on{background:var(--hit);color:#15173d;border-color:var(--hit)}
+.t.done{opacity:.4}
+.pl{display:flex;gap:10px;margin-bottom:12px}
+.p{flex:1;min-width:0;border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--card)}
+.p.act{border-color:var(--c)}
+.p b{display:block;color:var(--c);font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.p span{font-size:13px;color:var(--mute)}
+.sc{font-size:28px;font-weight:800;line-height:1.1}
+.bar{height:8px;border-radius:8px;background:var(--line);overflow:hidden;margin:6px 0 14px}
+.bar i{display:block;height:100%;background:var(--c);width:100%}
+.slots{display:flex;gap:6px;align-items:center;margin:12px 0 4px;flex-wrap:wrap}
+.s{width:34px;height:52px;border-radius:9px;border:2px dashed var(--line)}
+.s.hit{width:52px;display:grid;place-items:center;border:0;background:var(--hit);color:#15173d;font-size:32px;font-weight:800;text-transform:uppercase;transform:translateY(-3px)}
+.msg{font-weight:600;font-size:17px;margin:0 0 10px}
+.msg.ok{color:var(--ok)}.msg.no{color:var(--bad)}
+.mn{font-weight:400;color:var(--mute)}
+.big{font-size:30px;font-weight:800;margin:4px 0 12px}
+.acc{display:flex;gap:12px;align-items:center;margin-bottom:14px;padding:12px;border:1.5px solid var(--line);border-radius:14px;background:var(--card)}
+.acc img{width:42px;height:42px;border-radius:50%}
+.acc span{display:block;font-size:13px;color:var(--mute);line-height:1.35}
+.err{color:var(--bad);margin:8px 0 0;min-height:1.2em;font-size:15px}
+.code{font-size:56px;font-weight:800;letter-spacing:.16em;text-align:center;margin:8px 0;color:var(--a)}
+#toast{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:12px 14px;border-radius:12px;display:none;z-index:5}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tile{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:12px}
+.tile b{display:block;font-size:14px;margin-top:2px}
+.tile span{display:block;font-size:12.5px;color:var(--mute);line-height:1.3;margin-top:2px}
+.bw{display:flex;align-items:center;gap:8px;margin:7px 0;font-size:14px}
+.bw>span{width:78px;flex:none;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bt{flex:1;height:12px;background:var(--line);border-radius:8px;overflow:hidden}
+.bt i{display:block;height:100%;background:var(--a)}
+.bw>b{width:34px;text-align:right}
+.wr{padding:10px 0;border-top:1px solid var(--line)}
+.wr:first-child{border-top:0}
+.wr .w{font-size:19px;font-weight:800}
+.tag{font-size:12px;font-weight:600;background:var(--hit);color:#15173d;border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:middle}
+.wr .acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.ck{display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:10px 0 0}
+.ck input{width:auto}
+.tb{width:100%;border-collapse:collapse;font-size:14px}
+.tb td,.tb th{text-align:left;padding:6px 4px;border-top:1px solid var(--line)}
+.tb th{color:var(--mute);font-weight:600;border-top:0}
+.rl ul,.rl ol{margin:8px 0 0;padding-left:20px;line-height:1.6}
+.rl b.h{display:block;font-size:18px;margin-bottom:2px}
+.rl .lt{color:var(--a);font-weight:800}
+.ex{background:var(--bg);border-radius:12px;padding:10px 12px;margin-top:10px;font-size:15px;line-height:1.5}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+<script>
+var WORDS="planet garden bridge sunset market orange forest castle winter silver jungle rocket dragon flower mirror pocket spring ticket window basket candle doctor island knight lemon storm river music tiger cloud piano ocean honey light dance paper bread chair smile blame travel button family guitar summer".split(" ");
+var TARGETS={en:WORDS,uz:"qalam kitob daryo bahor oltin dengiz bulut yulduz sabzi gilam deraza osmon şahar mashina maktab daftar bozor tarvuz çiroq piyoz gözal ğalla köça böri".split(" ")};
+var BANK={en:"apple animal answer anchor above ability bridge banana bottle button brave bread beach book basket castle chair cloud candle camera carpet dance dragon doctor dinner door eagle energy engine elephant earth forest flower friend finger garden guitar green grape ground house honey hammer horse island image ice insect jungle jacket jelly kitchen knight kettle king light lemon ladder letter market music mirror monkey moon mountain number night nature needle nurse orange ocean office onion paper planet pocket piano parrot puzzle queen quiet question river rocket rabbit road summer silver sunset spring stone storm street table tiger ticket travel turtle umbrella under valley violin voice village window winter water wonder yellow zebra simple single sister plane brain cream dream crown drive train trade slide small smile steel stare stand clean glass group place plant".split(" "),uz:"olma osmon oltin ona ota amaki aka bahor bola bozor bulut baliq daftar daryo dengiz deraza dala doktor eshik eski gilam gul guruh hovli havo hayot ilon issiq ikki inson kitob kuz kecha kuchuk kishi lola loçin maktab mashina mushuk non narx nok odam oila oyna oxir piçoq piyoz poyezd qalam qor qish qush qiz quyoş qovun radio rasm sabzi samolyot şahar şamol sovuq suv sut tabiat tarvuz taksi tosh tuz uzum uyqu uy ustoz vaqt vodiy yulduz yoz yomgir yigit yuz zamin zavod çoy çiroq çol dars dost dehqon öğil söz köl kök yöl töy böri çöl köça gözal ğalla ğoya ğarb ötkir".split(" ")};
+
+/* ---------- soʻzlar bazasi (admin tahrirlaydi; boʻsh boʻlsa ichki roʻyxat ishlaydi) ---------- */
+var LEX={en:null,uz:null};
+function lexWords(l){var w=LEX[l]&&LEX[l].words;return w&&Object.keys(w).length?w:null;}
+function targetsOf(l){var w=lexWords(l);if(w){var a=Object.keys(w).filter(function(k){return w[k].t&&k.length>=3&&k.length<=8;});if(a.length)return a;}return TARGETS[l];}
+function bankOf(l){var w=lexWords(l);return w?Object.keys(w):BANK[l];}
+function KNOWN(v,l){var w=lexWords(l);return w?!!w[v]:(BANK[l].indexOf(v)>-1||TARGETS[l].indexOf(v)>-1);}
+function meaning(v,l){var w=lexWords(l);return w&&w[v]&&w[v].m?w[v].m:"";}
+
+var UZX="öğşç";
+function okW(v,l){return(l==="uz"?/^[a-zöğşç]+$/:/^[a-z]+$/).test(v);}
+function spHtml(id){return '<div class="kr" style="justify-content:flex-start;margin:8px 0 0">'+UZX.split("").map(function(c){return '<button type="button" class="k" data-sp="'+id+'" data-c="'+c+'">'+c+'</button>';}).join("")+'</div><div class="sub" style="font-size:13px;margin:6px 0 0">ö = oʻ · ğ = gʻ · ş = sh · ç = ch</div>';}
+document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-sp]");if(!b)return;var i=document.getElementById(b.dataset.sp);if(i){i.value+=b.dataset.c;i.focus();}});
+var P={lang:"en",pick:null}, G=null, MODE="local", ME=0, PATH=null, UNSUB=null, RT=0, VIEW="home", lastTO="", REC={};
+var MYBAL=null, PTS={};
+var U=null, DB=null, SM=null, MYID=null, MEP=null, CANW=true, ADM=false;
+var AT="stats", AL="en", AE=null, AD=null, ALIM=40;
+var app=document.getElementById("app");
+
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]});}
+function hearts(n){return "❤️".repeat(Math.max(n,0))||"💔";}
+function rndL(l){var a=targetsOf(l);return a[Math.floor(Math.random()*a.length)];}
+function clone(g){return JSON.parse(JSON.stringify(g));}
+function $(id){return document.getElementById(id);}
+function toast(m){var t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(function(){t.style.display="none";},3500);}
+
+/* ---------- oʻyin mantigʻi ---------- */
+function newGame(lang,word,players){return{gid:Math.random().toString(36).slice(2,10),lang:lang,word:word,t:0,lives:[5,5],score:[0,0],used:[],last:null,phase:"play",deadline:Date.now()+10000,players:players,chal:0,fake:0};}
+function cur(g){var n=g.word.length,r=Math.floor(g.t/n);return{pos:r+1,letter:g.word[g.t%n],p:(g.t+(n%2?0:r))%2};}
+function advance(g){g.t++;g.deadline=Date.now()+10000;var n=g.word.length;if(g.t>=(n%2?4:3)*n||g.lives[0]<=0||g.lives[1]<=0)g.phase="over";return g;}
+function applyMove(g,v,bad){
+  g=clone(g);var c=cur(g),why=bad||null;
+  if(!why){
+    if(!okW(v,g.lang))why="ruxsat etilmagan harf";
+    else if(v.length<c.pos||v[c.pos-1]!==c.letter)why=c.pos+"-harfi “"+c.letter.toUpperCase()+"” emas";
+    else if(g.used.indexOf(v)>-1)why="takroriy soʻz";
+  }
+  if(why){g.lives[c.p]--;g.last={p:c.p,word:v,ok:false,why:why,pts:0};}
+  else{var pts=v.length>=7?2:1;g.score[c.p]+=pts;g.used.push(v);g.last={p:c.p,word:v,ok:true,pts:pts};}
+  return advance(g);
+}
+function applyTimeout(g,why){g=clone(g);var c=cur(g);g.lives[c.p]--;g.last={p:c.p,word:"",ok:false,why:why,pts:0};return advance(g);}
+function applyChallenge(g,real){
+  g=clone(g);var L=g.last,o=1-L.p;g.chal=(g.chal||0)+1;
+  if(real){L.ch="real";g.score[o]=Math.max(g.score[o]-1,0);}
+  else{L.ch="fake";g.fake=(g.fake||0)+1;g.score[L.p]=Math.max(g.score[L.p]-L.pts,0);g.lives[L.p]--;g.score[o]++;g.used=g.used.filter(function(x){return x!==L.word;});if(g.lives[L.p]<=0)g.phase="over";}
+  return g;
+}
+function winner(g){var a=g.score[0],b=g.score[1];if(g.lives[0]<=0&&g.lives[1]>0)return 1;if(g.lives[1]<=0&&g.lives[0]>0)return 0;return a>b?0:b>a?1:-1;}
+
+async function isReal(v,lang){
+  if(KNOWN(v,lang))return true;
+  if(!SM)return null;
+  try{var r=await SM.json('Is "'+v+'" a real '+(lang==="uz"?"Uzbek (Latin script where ö=oʻ, ğ=gʻ, ş=sh, ç=ch)":"English")+' dictionary word? Reply only with JSON: {"real":true} or {"real":false}.');return !!(r&&r.real);}catch(e){return null;}
+}
+async function recordStats(me){
+  if(!DB||!MYID||!CANW||REC[G.gid])return;REC[G.gid]=1;
+  var g=G,w=winner(g),online=MODE==="online";
+  var r={at:Date.now(),mode:online?"online":"bot",lang:g.lang,word:g.word,t:g.t,sc:g.score,lv:g.lives,w:w,ch:[g.chal||0,g.fake||0],me:me,ids:g.players||null,d:0};
+  try{
+    var ref=DB.doc("stats/"+MYID),s=await ref.get(),d=s.exists?(s.data()||{}):{};
+    if(d.g&&d.g[g.gid]){if(typeof d.bal==="number")MYBAL=d.bal;setPts(g.gid,d.g[g.gid].d||0,online);return;}
+    var bal=typeof d.bal==="number"?d.bal:500,delta=online?(w<0?3:(w===me?8:-8)):0;
+    bal=Math.max(0,bal+delta);r.d=delta;var gg={};gg[g.gid]=r;
+    if(s.exists)await ref.update({bal:bal,g:gg});else await ref.set({bal:bal,g:gg});
+    MYBAL=bal;setPts(g.gid,delta,online);
+  }catch(e){}
+}
+function setPts(gid,delta,online){
+  var t=!online?"Bot bilan oʻyinda hisob balli oʻzgarmaydi.":(delta===8?"🏆 Gʻalaba: +8 ball":delta===3?"🤝 Durang: +3 ball":delta===-8?"💔 Magʻlubiyat: −8 ball":"Natija hisobga olingan.");
+  if(online&&typeof MYBAL==="number")t+=" · Hisobingiz: "+MYBAL+" ball";
+  PTS[gid]=t;var el=$("pts");if(el&&G&&G.gid===gid)el.textContent=t;
+}
+async function loadBal(){
+  try{
+    var ref=DB.doc("stats/"+MYID),s=await ref.get(),d=s.exists?(s.data()||{}):{};
+    if(typeof d.bal==="number")MYBAL=d.bal;
+    else{MYBAL=500;if(s.exists)await ref.update({bal:500});else await ref.set({bal:500});}
+  }catch(e){}
+}
+function commit(g){
+  if(MODE==="local"){G=g;render();}
+  else{DB.doc(PATH).set(g).catch(function(){toast("Yozib boʻlmadi. Ulanishni tekshiring.");});}
+}
+function botMaybe(){
+  if(MODE!=="local"||!G||G.phase!=="play"||cur(G).p!==1)return;
+  var g0=G;
+  setTimeout(function(){
+    if(G!==g0)return;
+    var c=cur(G),pool=bankOf(G.lang).filter(function(x){return x.length>=c.pos&&x[c.pos-1]===c.letter&&G.used.indexOf(x)<0;});
+    if(!pool.length||Math.random()<.12)commit(applyTimeout(G,"bot soʻz topa olmadi"));
+    else commit(applyMove(G,pool[Math.floor(Math.random()*pool.length)]));
+  },1500+Math.random()*2500);
+}
+
+/* ---------- oʻyin ekranlari ---------- */
+function home(){
+  VIEW="home";G=null;MODE="local";var online=DB&&MYID&&CANW;
+  var acc=MYID?'<div class="acc"><img src="'+esc(MEP.avatarUrl)+'" alt=""><div><b>'+esc(MEP.name||"Siz")+(ADM?' · admin':'')+'</b><span>claude.ai hisobingiz bilan kirdingiz</span>'+(MYBAL!==null?'<span style="margin-top:2px;color:var(--ink);font-weight:600">💰 '+MYBAL+' ball</span>':'')+'</div></div>'
+    :'<div class="acc"><div><b>Hisobga kirilmagan</b><span>Onlayn oʻynash uchun claude.ai hisobingiz bilan kiring va havolani oching.</span></div></div>';
+  app.innerHTML='<h1>Harfigatop ⚔️</h1><p class="sub">Tasodifiy soʻz tanlanadi. Uning harflari navbat bilan topshiriq boʻladi: 1-raundda soʻz shu harf bilan boshlanadi, 2-raundda ikkinchi harfi shu boʻladi va hokazo.</p>'+acc
+  +'<div class="card"><button class="go" id="bot" style="width:100%">🤖 Bot bilan oʻynash</button></div>'
+  +'<div class="card"><b>🌐 Onlayn oʻyin</b><p class="sub" style="margin:6px 0 12px">Doʻstingiz bilan alohida telefonlarda oʻynang.</p>'
+  +(online?'<button id="mk" style="width:100%">Xona ochish</button><label style="margin-top:16px">Yoki xona kodi bilan qoʻshiling</label><div class="row"><input id="cd" maxlength="4" placeholder="ABCD" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase"><button id="jn" style="flex:0 0 auto">Kirish</button></div><p id="er" class="err"></p>'
+  :'<p class="sub" style="margin:0">'+(MYID?'Onlayn oʻyin uchun sahifaga Contributor huquqi kerak.':'Hisob bilan kirganingizdan keyin ochiladi.')+'</p>')+'</div>'
+  +'<div class="card"><button class="alt" id="rl" style="width:100%">📖 Oʻyin qoidalari</button></div>'+(ADM?'<div class="card"><button class="alt" id="adm" style="width:100%">🛠 Admin paneli (soʻzlar va statistika)</button></div>':'')
+  +'<p class="sub" style="font-size:14px">5 ta jon ❤️ · 10 soniya · toʻgʻri soʻz +1, 7 va undan koʻp harfli +2 · onlayn oʻyinda raqibning soʻzini 🚩 challenge qilish mumkin.</p>';
+  $("bot").onclick=function(){setup("bot");};
+  $("rl").onclick=rules;
+  if(ADM)$("adm").onclick=admin;
+  if(online){
+    $("mk").onclick=function(){setup("online");};
+    $("jn").onclick=function(){joinRoom($("cd").value.trim().toUpperCase());};
+    $("cd").onkeydown=function(e){if(e.key==="Enter")$("jn").click();};
+  }
+}
+function rules(){
+  VIEW="rules";
+  app.innerHTML='<h1>Oʻyin qoidalari 📖</h1><p class="sub">Harfigatop — soʻz topish jangi. Qisqacha: tasodifiy soʻzning har bir harfi topshiriqqa aylanadi.</p>'
+  +'<div class="card rl"><b class="h">1. Oʻyin qanday boshlanadi</b>Tasodifiy (yoki oʻzingiz yozgan) soʻz tanlanadi, masalan <b>BLAME</b>. Uning har bir harfi navbat bilan topshiriq boʻlib chiqadi.</div>'
+  +'<div class="card rl"><b class="h">2. Raund nima</b>Raundlar soni soʻz uzunligiga bogʻliq: harflar soni <b>toq</b> boʻlsa — <b>4 raund</b>, <b>juft</b> boʻlsa — <b>3 raund</b> (BLAME 5 harfli, demak 4 raund). Ortiqcha raund qoʻshilmaydi. <b>N-raundda siz yozgan soʻzning N-harfi topshiriq harfi boʻlishi kerak.</b><ul><li><b>1-raund:</b> soʻz shu harf bilan boshlanadi. B uchun <i>book</i>, L uchun <i>light</i>.</li><li><b>2-raund:</b> soʻzning ikkinchi harfi shu boʻladi. B uchun <i>a<span class="lt">b</span>ility</i>, L uchun <i>p<span class="lt">l</span>ane</i>.</li><li><b>3-raund:</b> uchinchi harfi shu boʻladi, va hokazo.</li></ul>'
+  +'<div class="ex">Masalan, 3-raund, topshiriq harfi <b>A</b>:<div class="slots" style="margin:8px 0"><div class="s"></div><div class="s"></div><div class="s hit">A</div></div>Mos soʻz: <i>br<span class="lt">a</span>ve</i> — uchinchi harfi A.</div></div>'
+  +'<div class="card rl"><b class="h">3. Navbat va vaqt</b>Oʻyinchilar navbat bilan oʻynaydi. Har navbatda <b>10 soniya</b> bor, yuqoridagi chiziq vaqtni koʻrsatadi. Har bir raundda soʻzning barcha harflari boʻyicha topshiriq beriladi.</div>'
+  +'<div class="card rl"><b class="h">4. Jonlar ❤️</b>Har oʻyinchida <b>5 ta jon</b> bor. Quyidagi hollarda 1 jon yoʻqotiladi:<ul><li>soʻzning kerakli harfi topshiriq harfiga mos kelmasa;</li><li>soʻz oldin aytilgan boʻlsa (takror);</li><li>soʻz haqiqiy boʻlmasa;</li><li>vaqt tugab qolsa.</li></ul></div>'
+  +'<div class="card rl"><b class="h">5. Oʻyin balli</b><ul><li>Toʻgʻri soʻz: <b>+1 ball</b></li><li>7 va undan koʻp harfli soʻz: <b>+2 ball</b></li></ul></div>'
+  +'<div class="card rl"><b class="h">6. Hisob balli 💰</b>5-blokdagi ball faqat shu oʻyin ichida hisoblanadi. <b>Hisob balli</b> esa sizning umumiy balingiz:<ul><li>Birinchi marta kirganingizda hisobingizga <b>500 ball</b> beriladi.</li><li>Onlayn oʻyin tugagach: <b>gʻalaba +8</b>, <b>durang +3</b> (ikkala oʻyinchiga), <b>magʻlubiyat −8</b>.</li><li>Bot bilan oʻyinda hisob balli oʻzgarmaydi.</li><li>Hisob balli 0 dan pastga tushmaydi.</li></ul></div>'
+  +'<div class="card rl"><b class="h">7. Challenge 🚩 (onlayn oʻyinda)</b>Raqibning soʻzi haqiqiy emasga oʻxshasa, oʻz navbatingizda “challenge” tugmasini bosing. Soʻzni Claude tekshiradi.<ul><li>Soʻz <b>haqiqiy emas</b> chiqsa: raqib oʻsha soʻz uchun olgan ballini va 1 jonni yoʻqotadi, siz <b>+1 ball</b> olasiz.</li><li>Soʻz <b>haqiqiy</b> chiqsa: siz <b>−1 ball</b> yoʻqotasiz.</li></ul></div>'
+  +'<div class="card rl"><b class="h">8. Oʻyin qachon tugaydi</b>Barcha raundlar tugaganda (5 harfli soʻzda 4 raund, jami 20 navbat; 6 harfli soʻzda 3 raund, jami 18 navbat) yoki bir oʻyinchining jonlari tugaganda.<ul><li>Jonlari tugamagan oʻyinchi yutadi.</li><li>Ikkalasida ham jon qolsa, <b>koʻp ball</b> toʻplagan yutadi.</li><li>Ball teng boʻlsa — <b>durang</b> 🤝.</li></ul></div>'
+  +'<div class="card rl"><b class="h">9. Rejimlar</b><ul><li><b>🤖 Bot bilan:</b> kompyuterga qarshi, hisobsiz ham oʻynash mumkin.</li><li><b>🌐 Onlayn:</b> bir oʻyinchi “Xona ochish” tugmasini bosadi, 4 belgili kodni doʻstiga yuboradi, doʻsti kodni yozib qoʻshiladi. Buning uchun claude.ai hisobi kerak.</li></ul></div>'
+  +'<div class="card rl"><b class="h">10. Oʻzbekcha harflar</b>Oʻzbek tilida toʻrt harf alohida belgi bilan yoziladi va <b>bitta harf</b> hisoblanadi:<div class="ex"><b>ö</b> = oʻ · <b>ğ</b> = gʻ · <b>ş</b> = sh · <b>ç</b> = ch<br>Masalan, <i>şahar</i> — 5 harfli soʻz, uning 1-harfi ş.</div></div>'
+  +'<button class="go" id="hm" style="width:100%">Tushunarli, oʻynaymiz!</button>';
+  $("hm").onclick=home;
+}
+function setup(mode){
+  VIEW="setup";var word=P.pick||(P.pick=rndL(P.lang)),mn=meaning(word,P.lang);
+  app.innerHTML='<h1>'+(mode==="bot"?'Bot bilan':'Yangi xona')+'</h1>'
+  +'<div class="card"><div class="row"><button class="'+(P.lang==="en"?"":"alt")+'" data-l="en">🇬🇧 English</button><button class="'+(P.lang==="uz"?"":"alt")+'" data-l="uz">🇺🇿 Oʻzbekcha</button></div></div>'
+  +'<div class="card"><label>Oʻyin soʻzi</label><div class="tiles">'+word.split("").map(function(c){return '<div class="t">'+c+'</div>';}).join("")+'</div>'+(mn?'<p class="sub" style="margin:0 0 12px">Maʼnosi: '+esc(mn)+'</p>':'')
+  +'<button class="alt" id="rr" style="width:100%">🎲 Boshqa soʻz</button>'
+  +'<label style="margin-top:14px">Yoki oʻzingiz yozing (3–8 harf)</label><input id="cw" placeholder="'+(P.lang==="uz"?"masalan: şahar":"masalan: apple")+'" maxlength="8" autocapitalize="off" autocomplete="off">'+(P.lang==="uz"?spHtml("cw"):"")+'<p id="er" class="err"></p></div>'
+  +'<button class="go" id="st" style="width:100%">'+(mode==="bot"?'Boshlash':'Xona ochish')+'</button><div style="height:10px"></div><button class="alt" id="bk" style="width:100%">Orqaga</button>';
+  Array.prototype.forEach.call(app.querySelectorAll("[data-l]"),function(b){b.onclick=function(){P.lang=b.dataset.l;P.pick=null;setup(mode);};});
+  $("rr").onclick=function(){P.pick=rndL(P.lang);setup(mode);};
+  $("bk").onclick=home;
+  $("st").onclick=function(){
+    var c=$("cw").value.trim().toLowerCase();
+    if(c){if(c.length<3||c.length>8||!okW(c,P.lang)){$("er").textContent="Faqat 3–8 ta lotin harfi yozing.";return;}word=c;}
+    if(mode==="bot"){MODE="local";ME=0;G=newGame(P.lang,word,null);render();}
+    else createRoom(word);
+  };
+}
+function mkCode(){var a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(var i=0;i<4;i++)s+=a[Math.floor(Math.random()*a.length)];return s;}
+async function createRoom(word){
+  try{
+    var code,s;
+    for(var i=0;i<5;i++){code=mkCode();s=await DB.doc("games/"+code).get();if(!s.exists)break;}
+    var g=newGame(P.lang,word,[MYID,null]);g.phase="lobby";
+    await DB.doc("games/"+code).set(g);
+    watch(code);
+  }catch(e){$("er").textContent="Xona ochib boʻlmadi. Ulanishni tekshiring.";}
+}
+async function joinRoom(code){
+  var er=$("er");er.textContent="";
+  if(code.length!==4){er.textContent="Kod 4 ta belgidan iborat.";return;}
+  try{
+    var ref=DB.doc("games/"+code),s=await ref.get();
+    if(!s.exists){er.textContent="Bunday xona topilmadi.";return;}
+    var g=s.data();
+    if(g.players.indexOf(MYID)>-1){watch(code);return;}
+    if(g.phase!=="lobby"||g.players[1]){er.textContent="Bu xona band.";return;}
+    var ng=clone(g);ng.players[1]=MYID;ng.phase="play";ng.deadline=Date.now()+10000;
+    await ref.set(ng);watch(code);
+  }catch(e){er.textContent="Ulanib boʻlmadi. Qayta urinib koʻring.";}
+}
+function watch(code){
+  MODE="online";PATH="games/"+code;if(UNSUB)UNSUB();
+  UNSUB=DB.doc(PATH).onSnapshot(function(s){
+    if(!s.exists){if(VIEW==="game"){leave();toast("Xona yopildi.");}return;}
+    G=s.data();ME=G.players.indexOf(MYID);render();
+  },function(){toast("Aloqa uzildi.");});
+}
+function leave(){
+  if(UNSUB)UNSUB();UNSUB=null;
+  if(MODE==="online"&&G&&G.phase==="lobby"&&ME===0&&DB)DB.doc(PATH).delete().catch(function(){});
+  home();
+}
+async function names(){
+  if(MODE==="local")return[(MEP&&MEP.name)||"Siz","Bot 🤖"];
+  var ids=G.players.filter(Boolean),ps=U?await U.profiles(ids):{};
+  return G.players.map(function(id,i){return(id&&ps[id]&&ps[id].name)||"Oʻyinchi "+(i+1);});
+}
+function head(nm,me,act){
+  var h='<div class="pl">';
+  [0,1].forEach(function(i){h+='<div class="p'+(act===i?' act':'')+'" style="--c:var('+(i?'--b':'--a')+')"><b>'+esc(nm[i])+(i===me?' (siz)':'')+'</b><div class="sc">'+G.score[i]+'</div><span>'+hearts(G.lives[i])+'</span></div>';});
+  return h+'</div>';
+}
+function lastHtml(nm){
+  var L=G.last;if(!L)return"";var who=esc(nm[L.p]);
+  if(L.ch==="fake")return '<p class="msg no">🚩 '+who+': “'+esc(L.word)+'” soʻz emas! Ball va 1 jon yoʻqotildi.</p>';
+  if(!L.ok)return '<p class="msg no">❌ '+who+': '+(L.word?'“'+esc(L.word)+'” — ':'')+esc(L.why)+'. −1 jon</p>';
+  var m=meaning(L.word,G.lang);
+  return '<p class="msg ok">✅ '+who+': “'+esc(L.word)+'” +'+L.pts+(m?' <span class="mn">— '+esc(m)+'</span>':'')+'</p>'+(L.ch==="real"?'<p class="sub" style="margin-top:-6px">🚩 Challenge notoʻgʻri: soʻz haqiqiy. Challenge qilgan −1 ball.</p>':'');
+}
+function lobby(){
+  VIEW="game";
+  app.innerHTML='<h1>Xona ochildi</h1><div class="card"><p class="sub" style="margin:0">Doʻstingiz shu sahifani ochib, “Xona kodi bilan qoʻshiling” maydoniga kodni yozsin:</p><div class="code">'+esc(PATH.split("/")[1])+'</div><p class="sub" style="margin:0">Raqib qoʻshilishini kutyapmiz… ⏳</p></div><button class="alt" id="cx" style="width:100%">Bekor qilish</button>';
+  $("cx").onclick=leave;
+}
+function KB(){var rows=["qwertyuiop","asdfghjkl","zxcvbnm"];if(G&&G.lang==="uz")rows.push("öğşç");return '<div class="kb">'+rows.map(function(r,i){return '<div class="kr">'+r.split("").map(function(c){return '<button class="k" data-k="'+c+'">'+c+'</button>';}).join("")+(i===2?'<button class="k w" data-k="bs" aria-label="Oʻchirish">⌫</button>':'')+'</div>';}).join("")+(G&&G.lang==="uz"?'<div class="sub" style="font-size:12.5px;text-align:center;margin:2px 0 0">ö = oʻ · ğ = gʻ · ş = sh · ç = ch</div>':'')+'</div>';}
+async function render(){
+  if(!G)return;var tok=++RT;
+  if(G.phase==="lobby"&&MODE==="online")return lobby();
+  VIEW="game";
+  var nm=await names();if(tok!==RT)return;
+  var me=MODE==="local"?0:ME;
+  if(me<0){app.innerHTML=head(nm,-1,-1)+'<div class="card"><p class="msg">Bu xonada sizga oʻrin yoʻq.</p><button id="hm" style="width:100%">Bosh sahifa</button></div>';$("hm").onclick=leave;return;}
+  if(G.phase==="over"){
+    var w=winner(G),wm=meaning(G.word,G.lang);recordStats(me);
+    app.innerHTML=head(nm,me,-1)+lastHtml(nm)+'<div class="card"><div class="big">'+(w<0?'Durang! 🤝':'🏆 '+esc(nm[w])+' gʻolib!')+'</div><p class="sub">Oʻyin soʻzi: <b>'+esc(G.word.toUpperCase())+'</b>'+(wm?' — '+esc(wm):'')+'</p><p class="msg" id="pts" style="margin:0 0 12px">'+(PTS[G.gid]||"")+'</p><div class="row"><button id="again">'+(MODE==="online"?'Revansh':'Yana oʻynash')+'</button><button class="alt" id="hm">Bosh sahifa</button></div></div>';
+    $("again").onclick=function(){if(MODE==="online")commit(newGame(G.lang,rndL(G.lang),G.players));else{P.pick=null;setup("bot");}};
+    $("hm").onclick=leave;return;
+  }
+  var c=cur(G),mine=c.p===me,col=c.p?"--b":"--a",slots="";
+  for(var i=1;i<c.pos;i++)slots+='<div class="s"></div>';slots+='<div class="s hit">'+c.letter+'</div>';
+  var wt=G.word.split("").map(function(ch,i){return'<div class="t'+(i===G.t%G.word.length?' on':(i<G.t%G.word.length?' done':''))+'">'+ch+'</div>';}).join("");
+  var canCh=MODE==="online"&&SM&&G.last&&G.last.ok&&!G.last.ch&&G.last.p!==me;
+  app.innerHTML=head(nm,me,c.p)+lastHtml(nm)
+  +'<div class="card" style="--c:var('+col+')"><div style="color:var(--mute);font-size:14px">'+c.pos+'-raund · navbat: <b style="color:var(--c)">'+esc(nm[c.p])+'</b></div><div class="tiles">'+wt+'</div>'
+  +'<div class="msg" style="margin:8px 0 0">Soʻzning <b>'+c.pos+'-harfi “'+c.letter.toUpperCase()+'”</b> boʻlsin</div><div class="slots">'+slots+'</div><div class="bar"><i id="bar"></i></div>'
+  +(mine?'<input id="in" inputmode="none" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Soʻzni yozing" maxlength="14"><div style="height:10px"></div>'+KB()+'<button class="go" id="ok" style="width:100%;background:var(--c)">Yuborish</button>'
+        :'<p class="msg" style="margin:0">⏳ '+esc(nm[c.p])+' oʻylayapti…</p>')+'</div>'
+  +(canCh?'<button class="alt" id="ch" style="width:100%;margin-bottom:10px">🚩 “'+esc(G.last.word)+'” — soʻz emas, challenge!</button>':'')
+  +'<button class="alt" id="hm" style="width:100%">Chiqish</button>';
+  $("hm").onclick=leave;
+  if(canCh)$("ch").onclick=async function(){
+    var b=$("ch");b.disabled=true;b.textContent="Tekshirilmoqda…";var g0=G;
+    var r=await isReal(g0.last.word,g0.lang);
+    if(r===null){toast("Tekshirib boʻlmadi.");b.disabled=false;return;}
+    if(G.t!==g0.t||G.last.ch)return;
+    commit(applyChallenge(G,r));
+  };
+  if(mine){
+    var inp=$("in"),d0=G.deadline;inp.focus();
+    var sub=async function(){
+      var v=inp.value.trim().toLowerCase();if(!v)return;inp.disabled=true;$("ok").disabled=true;var bad=null;
+      if(MODE==="local"&&okW(v,G.lang)&&!KNOWN(v,G.lang)){var r=await isReal(v,G.lang);if(r===false)bad="soʻz emas";}
+      if(!G||G.deadline!==d0)return;
+      commit(applyMove(G,v,bad));
+    };
+    $("ok").onclick=sub;inp.onkeydown=function(e){if(e.key==="Enter")sub();};
+    Array.prototype.forEach.call(app.querySelectorAll(".k"),function(b){b.onclick=function(){if(inp.disabled)return;var k=b.dataset.k;if(k==="bs")inp.value=inp.value.slice(0,-1);else if(inp.value.length<14)inp.value+=k;};});
+  }
+  if(MODE==="local")botMaybe();
+}
+setInterval(function(){
+  if(!G||G.phase!=="play"||VIEW!=="game")return;
+  var left=G.deadline-Date.now(),b=$("bar");if(b)b.style.width=Math.max(left/100,0)+"%";
+  var c=cur(G),key=G.t+"/"+G.deadline;
+  if(MODE==="local"){if(c.p===0&&left<=0&&lastTO!==key){lastTO=key;commit(applyTimeout(G,"vaqt tugadi"));}return;}
+  var me=G.players.indexOf(MYID);if(me<0)return;
+  if(lastTO!==key&&((c.p===me&&left<=0)||left<-4000)){lastTO=key;commit(applyTimeout(G,"vaqt tugadi"));}
+},200);
+
+/* ---------- ADMIN PANELI ---------- */
+function admin(){
+  VIEW="admin";
+  app.innerHTML='<h1>Admin paneli 🛠</h1><p class="sub">Bu yerda oʻyin soʻzlarini boshqarasiz va oʻyin statistikasini koʻrasiz. Bu panelni faqat sahifa egasi va muharrirlar koʻradi.</p>'
+  +'<div class="row" style="margin-bottom:14px"><button class="'+(AT==="stats"?"":"alt")+'" data-t="stats">📊 Statistika</button><button class="'+(AT==="words"?"":"alt")+'" data-t="words">📚 Soʻzlar</button></div><div id="ab"></div><div style="height:6px"></div><button class="alt" id="hm" style="width:100%">⬅ Oʻyinga qaytish</button>';
+  Array.prototype.forEach.call(app.querySelectorAll("[data-t]"),function(b){b.onclick=function(){AT=b.dataset.t;admin();};});
+  $("hm").onclick=home;
+  if(AT==="stats")adminStats();else adminWords();
+}
+async function lexSet(l,words){await DB.doc("lex/"+l).set({words:words,upd:Date.now()});}
+function curWords(l){return clone(lexWords(l)||{});}
+
+function adminWords(){
+  var ph=AL==="uz"?"masalan: kitob":"masalan: apple", mh=AL==="uz"?"Inglizcha tarjimasi (ixtiyoriy)":"Oʻzbekcha maʼnosi (ixtiyoriy)";
+  $("ab").innerHTML='<div class="card"><div class="row"><button class="'+(AL==="en"?"":"alt")+'" data-al="en">🇬🇧 English</button><button class="'+(AL==="uz"?"":"alt")+'" data-al="uz">🇺🇿 Oʻzbekcha</button></div></div><div id="wi"></div>'
+  +'<div class="card"><b>➕ Yangi soʻz qoʻshish</b><p class="sub" style="margin:6px 0 10px;font-size:14px">Soʻzni faqat lotin harflarida (a–z) yozing. Soʻz bazada bor boʻlsa, uning maʼnosi yangilanadi.</p>'
+  +'<label>Soʻz</label><input id="aw" placeholder="'+ph+'" maxlength="14" autocapitalize="off" autocomplete="off">'+(AL==="uz"?spHtml("aw"):"")+'<label style="margin-top:10px">'+mh+'</label><input id="am" maxlength="80" autocomplete="off">'
+  +'<label class="ck"><input type="checkbox" id="at" checked> Oʻyin soʻzi sifatida ham ishlatilsin (3–8 harf)</label><button id="ad" style="width:100%;margin-top:12px">Qoʻshish</button><p id="ae" class="err"></p></div>'
+  +'<div class="card"><b>📥 Koʻp soʻzni birdaniga yuklash</b><p class="sub" style="margin:6px 0 10px;font-size:14px">Har qatorga bittadan yozing: soʻz, keyin = belgisi, keyin maʼnosi. Maʼnosiz ham boʻladi.</p>'
+  +'<textarea id="bk" rows="5" placeholder="apple = olma&#10;river = daryo&#10;stone"></textarea>'+(AL==="uz"?spHtml("bk"):"")+'<label class="ck"><input type="checkbox" id="bt" checked> Hammasi oʻyin soʻzi sifatida ham ishlatilsin</label><button id="bd" style="width:100%;margin-top:12px">Yuklash</button><p id="be" class="err"></p></div>'
+  +'<div class="card"><b>📖 Soʻzlar roʻyxati</b><input id="sq" placeholder="Soʻz yoki maʼno boʻyicha qidirish" style="margin:10px 0" autocomplete="off"><div id="wl"></div></div>';
+  Array.prototype.forEach.call(app.querySelectorAll("[data-al]"),function(b){b.onclick=function(){AL=b.dataset.al;AE=null;AD=null;ALIM=40;adminWords();};});
+  $("sq").oninput=function(){ALIM=40;paintWords();};
+  $("ad").onclick=addWord;$("bd").onclick=bulkAdd;
+  $("wl").onclick=listClick;
+  paintWords();
+}
+function paintWords(){
+  var l=AL,w=lexWords(l),wi=$("wi"),wl=$("wl");if(!wi||!wl)return;
+  if(!w){
+    wi.innerHTML='<div class="card"><b>Baza hali boʻsh</b><p class="sub" style="margin:6px 0 12px">Hozir oʻyin ichki roʻyxatdan ('+BANK[l].length+' ta soʻz) foydalanyapti. Tahrirlash, oʻchirish va maʼno qoʻshish uchun avval uni bazaga yuklab oling. Bundan keyin oʻyin faqat shu bazadan soʻz oladi.</p><button id="sd" style="width:100%">Standart roʻyxatni bazaga yuklash</button></div>';
+    $("sd").onclick=seed;wl.innerHTML='<p class="sub" style="margin:0">Baza boʻsh.</p>';return;
+  }
+  var ks=Object.keys(w).sort(),nt=ks.filter(function(k){return w[k].t;}).length,nm=ks.filter(function(k){return !w[k].m;}).length;
+  wi.innerHTML='<div class="g2"><div class="tile"><div class="sc">'+ks.length+'</div><b>jami soʻz</b><span>botning lugʻati va challenge tekshiruvi</span></div><div class="tile"><div class="sc">'+nt+'</div><b>oʻyin soʻzi</b><span>tasodifiy tanlanadigan soʻzlar</span></div></div>'
+  +'<div class="card"><b>'+nm+' ta soʻzning maʼnosi yoʻq</b>'+(nm&&SM?'<button class="alt" id="cf" style="width:100%;margin-top:10px">✨ Claude bilan toʻldirish ('+Math.min(nm,25)+' ta)</button><p class="sub" style="margin:8px 0 0;font-size:13px">Bir bosishda 25 tagacha. Claude yozgan maʼnolarni oʻzingiz tekshirib chiqing.</p>':'')+'</div>';
+  if($("cf"))$("cf").onclick=fillMeanings;
+  var q=($("sq").value||"").trim().toLowerCase();
+  var f=ks.filter(function(k){return !q||k.indexOf(q)>-1||(w[k].m||"").toLowerCase().indexOf(q)>-1;});
+  var h=f.slice(0,ALIM).map(function(k){
+    var r=w[k];
+    if(AE===k)return '<div class="wr"><span class="w">'+esc(k)+'</span><label style="margin-top:8px">Maʼnosi</label><input id="em" value="'+esc(r.m||"")+'" maxlength="80"><label class="ck"><input type="checkbox" id="et"'+(r.t?' checked':'')+'> Oʻyin soʻzi</label><div class="acts"><button class="sm" data-a="s" data-k="'+k+'">Saqlash</button><button class="alt sm" data-a="c">Bekor</button></div></div>';
+    if(AD===k)return '<div class="wr"><span class="w">'+esc(k)+'</span><p class="msg no" style="margin:6px 0">Bu soʻz bazadan oʻchirilsinmi?</p><div class="acts"><button class="sm red" data-a="dy" data-k="'+k+'">Ha, oʻchirilsin</button><button class="alt sm" data-a="c">Yoʻq</button></div></div>';
+    return '<div class="wr"><span class="w">'+esc(k)+'</span>'+(r.t?'<span class="tag">oʻyin soʻzi</span>':'')+'<div class="mn">'+(r.m?esc(r.m):'maʼnosi yoʻq')+'</div><div class="acts"><button class="alt sm" data-a="e" data-k="'+k+'">Tahrirlash</button><button class="alt sm" data-a="d" data-k="'+k+'">Oʻchirish</button></div></div>';
+  }).join("");
+  wl.innerHTML=(h||'<p class="sub" style="margin:0">Hech narsa topilmadi.</p>')+(f.length>ALIM?'<button class="alt" data-a="m" style="width:100%;margin-top:10px">Yana koʻrsatish ('+(f.length-ALIM)+' ta qoldi)</button>':'');
+}
+async function listClick(e){
+  var b=e.target.closest("button");if(!b)return;var a=b.dataset.a,k=b.dataset.k,l=AL;
+  if(a==="e"){AE=k;AD=null;paintWords();}
+  else if(a==="d"){AD=k;AE=null;paintWords();}
+  else if(a==="c"){AE=null;AD=null;paintWords();}
+  else if(a==="m"){ALIM+=40;paintWords();}
+  else if(a==="s"){var w=curWords(l);if(!w[k])return;w[k]={m:$("em").value.trim().slice(0,80),t:$("et").checked&&k.length>=3&&k.length<=8};AE=null;try{await lexSet(l,w);toast("Saqlandi");}catch(x){toast("Saqlab boʻlmadi");}}
+  else if(a==="dy"){var w2=curWords(l);delete w2[k];AD=null;try{await lexSet(l,w2);toast("Oʻchirildi");}catch(x){toast("Oʻchirib boʻlmadi");}}
+}
+function needSeed(el){if(!lexWords(AL)){el.textContent="Avval yuqoridagi “Standart roʻyxatni bazaga yuklash” tugmasini bosing.";return true;}return false;}
+async function addWord(){
+  var er=$("ae");er.textContent="";if(needSeed(er))return;
+  var k=$("aw").value.trim().toLowerCase();
+  if(k.length<2||k.length>14||!okW(k,AL)){er.textContent="Soʻz 2–14 ta lotin harfidan iborat boʻlishi kerak.";return;}
+  var w=curWords(AL),old=w[k];w[k]={m:$("am").value.trim().slice(0,80),t:$("at").checked&&k.length>=3&&k.length<=8};
+  try{await lexSet(AL,w);toast(old?"Yangilandi":"Qoʻshildi");$("aw").value="";$("am").value="";$("aw").focus();}catch(x){er.textContent="Saqlab boʻlmadi. Qayta urinib koʻring.";}
+}
+async function bulkAdd(){
+  var er=$("be");er.textContent="";if(needSeed(er))return;
+  var w=curWords(AL),n=0,bad=0,tg=$("bt").checked;
+  $("bk").value.split("\n").forEach(function(line){
+    if(!line.trim())return;var m=line.match(/^\s*([a-zA-ZöğşçÖĞŞÇ]{2,14})\s*(?:[=:,\t-]\s*(.*))?$/);
+    if(!m||!okW(m[1].toLowerCase(),AL)){bad++;return;}var k=m[1].toLowerCase();w[k]={m:(m[2]||"").trim().slice(0,80),t:tg&&k.length>=3&&k.length<=8};n++;
+  });
+  if(!n){er.textContent="Hech qanday toʻgʻri qator topilmadi. Namuna: apple = olma";return;}
+  try{await lexSet(AL,w);$("bk").value="";toast(n+" ta soʻz yuklandi"+(bad?" ("+bad+" ta qator oʻtkazib yuborildi)":""));}catch(x){er.textContent="Yuklab boʻlmadi. Qayta urinib koʻring.";}
+}
+async function seed(){
+  var l=AL,o={};BANK[l].concat(TARGETS[l]).forEach(function(k){if(!o[k])o[k]={m:"",t:false};});TARGETS[l].forEach(function(k){o[k].t=true;});
+  try{await lexSet(l,o);toast("Standart roʻyxat yuklandi");}catch(e){toast("Yuklab boʻlmadi");}
+}
+async function fillMeanings(){
+  var l=AL,w=lexWords(l),ks=Object.keys(w).filter(function(k){return !w[k].m;}).slice(0,25),b=$("cf");
+  b.disabled=true;b.textContent="Claude yozmoqda…";
+  try{
+    var r=await SM.json('Give a short meaning (1-3 words) for each '+(l==="uz"?'Uzbek word (letters: ö=oʻ, ğ=gʻ, ş=sh, ç=ch), written in English':'English word, written in Uzbek (Latin script)')+'. Reply only with a JSON object mapping each word to its meaning. Words: '+ks.join(", "));
+    var nw=curWords(l),n=0;
+    ks.forEach(function(k){if(r&&typeof r[k]==="string"&&r[k].trim()&&nw[k]){nw[k].m=r[k].trim().slice(0,80);n++;}});
+    await lexSet(l,nw);toast(n+" ta maʼno qoʻshildi. Tekshirib chiqing.");
+  }catch(e){toast("Claude javob bera olmadi. Qayta urinib koʻring.");b.disabled=false;}
+}
+
+function tile(n,t,h){return '<div class="tile"><div class="sc">'+n+'</div><b>'+t+'</b><span>'+h+'</span></div>';}
+function bars(rows){var mx=Math.max.apply(null,rows.map(function(r){return r[1];}).concat([1]));return rows.map(function(r){return '<div class="bw"><span>'+esc(r[0])+'</span><div class="bt"><i style="width:'+Math.round(r[1]/mx*100)+'%"></i></div><b>'+r[1]+'</b></div>';}).join("");}
+async function adminStats(){
+  var ab=$("ab");ab.innerHTML='<div class="card"><p class="sub" style="margin:0">Yuklanmoqda…</p></div>';
+  var snap;try{snap=await DB.collection("stats").get();}catch(e){ab.innerHTML='<div class="card"><p class="msg no">Statistikani yuklab boʻlmadi.</p><button id="rt">Qayta urinish</button></div>';$("rt").onclick=adminStats;return;}
+  var games={},pl=[];
+  snap.docs.forEach(function(d){var g=(d.data()||{}).g||{},n=0,win=0,dr=0;Object.keys(g).forEach(function(k){var r=g[k];n++;if(r.w===r.me)win++;else if(r.w<0)dr++;if(!games[k])games[k]=r;});pl.push({id:d.id,n:n,win:win,dr:dr,bal:(d.data()||{}).bal});});
+  var L=Object.keys(games).map(function(k){return games[k];}),N=L.length;
+  if(!N){ab.innerHTML='<div class="card"><b>Hali statistika yoʻq</b><p class="sub" style="margin:6px 0 0">Birinchi oʻyin tugagach bu yerda maʼlumotlar paydo boʻladi. Statistika faqat hisob bilan kirgan oʻyinchilarning tugagan oʻyinlaridan yigʻiladi.</p></div><button class="alt" id="rf" style="width:100%">🔄 Yangilash</button>';$("rf").onclick=adminStats;return;}
+  var onl=L.filter(function(r){return r.mode==="online";}).length,en=L.filter(function(r){return r.lang==="en";}).length,dr=L.filter(function(r){return r.w<0;}).length;
+  var ch=0,fk=0,tt=0;L.forEach(function(r){ch+=(r.ch||[0,0])[0];fk+=(r.ch||[0,0])[1];tt+=r.t;});
+  var tw={};L.forEach(function(r){tw[r.word]=(tw[r.word]||0)+1;});
+  var top=Object.keys(tw).sort(function(a,b){return tw[b]-tw[a];}).slice(0,5).map(function(k){return[k.toUpperCase(),tw[k]];});
+  var days=[];for(var i=6;i>=0;i--){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-i);days.push({s:d.getTime(),e:d.getTime()+864e5,l:("0"+d.getDate()).slice(-2)+"."+("0"+(d.getMonth()+1)).slice(-2),n:0});}
+  L.forEach(function(r){days.forEach(function(d){if(r.at>=d.s&&r.at<d.e)d.n++;});});
+  var rec=L.slice().sort(function(a,b){return b.at-a.at;}).slice(0,8),ids=pl.map(function(p){return p.id;});
+  rec.forEach(function(r){(r.ids||[]).forEach(function(x){if(x&&ids.indexOf(x)<0)ids.push(x);});});
+  var ps=U?await U.profiles(ids):{},nmOf=function(id){return(id&&ps[id]&&ps[id].name)||"Nomaʼlum";};
+  var pt=pl.sort(function(a,b){return b.n-a.n;}).slice(0,10).map(function(p){return '<tr><td>'+esc(nmOf(p.id))+'</td><td>'+p.n+'</td><td>'+p.win+'</td><td>'+p.dr+'</td><td>'+(typeof p.bal==="number"?p.bal:"–")+'</td></tr>';}).join("");
+  var rt=rec.map(function(r){
+    var dt=new Date(r.at),ds=("0"+dt.getDate()).slice(-2)+"."+("0"+(dt.getMonth()+1)).slice(-2)+" "+("0"+dt.getHours()).slice(-2)+":"+("0"+dt.getMinutes()).slice(-2);
+    var res=r.w<0?"durang":(r.ids&&r.ids[r.w]?nmOf(r.ids[r.w])+" yutdi":(r.w===0?"oʻyinchi yutdi":"bot yutdi"));
+    return '<tr><td>'+ds+'</td><td>'+(r.mode==="online"?'🌐':'🤖')+(r.lang==="en"?'🇬🇧':'🇺🇿')+' '+esc(r.word.toUpperCase())+'</td><td>'+r.sc[0]+':'+r.sc[1]+'</td><td>'+esc(res)+'</td></tr>';
+  }).join("");
+  ab.innerHTML='<div class="g2">'
+  +tile(N,'tugagan oʻyin','Oʻyin oxirigacha yetgan partiyalar soni')
+  +tile(pl.length,'oʻyinchi','Oʻyinga hisob bilan kirib, 500 ball olganlar')
+  +tile(onl,'onlayn oʻyin','Qolgan '+(N-onl)+' tasi bot bilan oʻynalgan')
+  +tile(dr,'durang','Ball va jonlar teng chiqqan oʻyinlar')
+  +tile((tt/N).toFixed(1),'oʻrtacha navbat','Bir oʻyinda nechta navbat oʻynalgani')
+  +tile(ch+' / '+fk,'challenge','Jami challenge / shundan soʻz haqiqatan xato chiqqan')+'</div>'
+  +'<div class="card"><b>Tillar</b><p class="sub" style="margin:4px 0 6px;font-size:13px">Qaysi tildagi oʻyinlar koʻproq oʻynalyapti</p>'+bars([['English',en],['Oʻzbekcha',N-en]])+'</div>'
+  +'<div class="card"><b>Oxirgi 7 kun</b><p class="sub" style="margin:4px 0 6px;font-size:13px">Har kuni nechta oʻyin tugagan</p>'+bars(days.map(function(d){return[d.l,d.n];}))+'</div>'
+  +'<div class="card"><b>Eng koʻp tanlangan oʻyin soʻzlari</b>'+bars(top)+'</div>'
+  +'<div class="card"><b>Oʻyinchilar</b><div style="overflow-x:auto;margin-top:6px"><table class="tb"><tr><th>Ism</th><th>Oʻyin</th><th>Gʻalaba</th><th>Durang</th><th>Ball</th></tr>'+pt+'</table></div></div>'
+  +'<div class="card"><b>Oxirgi oʻyinlar</b><div style="overflow-x:auto;margin-top:6px"><table class="tb"><tr><th>Vaqt</th><th>Soʻz</th><th>Hisob</th><th>Natija</th></tr>'+rt+'</table></div></div>'
+  +'<button class="alt" id="rf" style="width:100%">🔄 Yangilash</button><p class="sub" style="margin:12px 0 0;font-size:13px">Statistika faqat hisob bilan kirgan oʻyinchilarning tugagan oʻyinlaridan yigʻiladi.</p>';
+  $("rf").onclick=adminStats;
+}
+
+/* ---------- boshlash ---------- */
+home();
+(async function(){
+  try{
+    if(window.claude&&claude.use){
+      U=await claude.use("user");DB=await claude.use("db");SM=await claude.use("sample");
+      if(U){MEP=await U.me();MYID=MEP.id;var w=await U.can("data.write");CANW=w!==false;ADM=!!(await U.isOwner()||await U.canEdit());if(DB&&MYID&&CANW)await loadBal();}
+      if(DB)["en","uz"].forEach(function(l){DB.doc("lex/"+l).onSnapshot(function(s){LEX[l]=s.exists?s.data():null;if(VIEW==="admin"&&AT==="words")paintWords();},function(){});});
+    }
+  }catch(e){}
+  if(VIEW==="home")home();
+})();
+</script>
+</body>
+</html>
